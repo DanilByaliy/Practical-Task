@@ -2,11 +2,6 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { map, firstValueFrom } from 'rxjs';
 
-interface Section {
-  Id: number;
-  Description: string;
-}
-
 @Injectable()
 export class TicketsService implements OnModuleInit {
   sections: object = {};
@@ -14,18 +9,17 @@ export class TicketsService implements OnModuleInit {
   constructor(private readonly httpService: HttpService) {}
 
   async onModuleInit() {
-    this.httpService
-      .get(
-        'https://my.laphil.com/en/rest-proxy/ReferenceData/Sections?seatMapId=12',
-      )
-      .pipe(
-        map((res) => res.data as Array<Section>),
-        map((sections) => {
-          sections.forEach(({ Id, Description }) => {
-            this.sections[Id] = Description;
-          });
-        }),
-      );
+    const sections = await firstValueFrom(
+      this.httpService
+        .get(
+          'https://my.laphil.com/en/rest-proxy/ReferenceData/Sections?seatMapId=12',
+        )
+        .pipe(map((res) => res.data)),
+    );
+
+    sections.forEach(({ Id, Description }) => {
+      this.sections[Id] = Description;
+    });
   }
 
   async getTickets(eventId: string) {
