@@ -3,7 +3,7 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from './../src/app.module';
 
-describe('AppController (e2e)', () => {
+describe('TicketsController (e2e)', () => {
   let app: INestApplication;
 
   beforeEach(async () => {
@@ -15,10 +15,14 @@ describe('AppController (e2e)', () => {
     await app.init();
   });
 
-  it('/ (GET)', () => {
+  it('should return an array of available tickets', () => {
     return request(app.getHttpServer())
-      .get('/')
+      .get('/tickets/1195')
+      .expect('Content-Type', /json/)
       .expect(200)
-      .expect('Hello World!');
+      .expect(({ body }) => {
+        expect(body).toBeDefined();
+        expect(Array.isArray(body)).toBe(true);
+      });
   });
 });
